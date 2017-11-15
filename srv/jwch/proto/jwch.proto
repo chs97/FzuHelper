@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+service Jwch {
+  rpc Login (LoginRequest) returns (LoginResponse) {}
+  rpc Getinfo (GetInfoRequest) returns (GetInfoResponse) {}
+}
+
+ message LoginRequest {
+   string stdno = 1;
+   string password = 2;
+ }
+
+ message LoginResponse {}
+
+ message GetInfoRequest {
+   string stdno = 1;
+   string password  = 2;
+ }
+ message GetInfoResponse {
+   string stdno = 1;
+   string realname = 2;
+   string grade = 3;
+   string college = 4;
+ }

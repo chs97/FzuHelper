@@ -1,0 +1,23 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [{
+    "taskName": "auth server",
+    "type": "shell",
+    "command": "go",
+    "options": {
+      "env": {
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_PORT": "5431",
+        "POSTGRES_DB": "auth",
+        "POSTGRES_USER": "root",
+        "POSTGRES_PASSWORD": "123456",
+        "SALT": "dkWOt3aGqAR8EGRY",
+        "JWT_SECRET": "QjRjaZoJfhqud9tj"
+      }
+    },
+    "args": ["run", "srv/auth/main.go"],
+    "problemMatcher": ["$go"]
+  }]
+}
