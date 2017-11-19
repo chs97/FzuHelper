@@ -12,6 +12,8 @@ type User struct {
 	Realname    string    `gorm:"type:varchar(30);not null"`
 	Grade       string    `gorm:"type:varchar(4);not null"`
 	College     string    `gorm:"type:varchar(30);not null"`
+	Phone       string    `gorm:"type:varchar(11);not null"`
+	Qq          string    `gorm:"type:varchar(12);not null"`
 	AccessToken string    `gorm:"type:varchar(64);not null"`
 	CreateAt    time.Time `gorm:"type:timestamp;not null;"`
 	UpdateAt    time.Time `gorm:"type:timestamp;not null;"`

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/chs97/FzuHelper/srv/jwch/proto"
 	"golang.org/x/net/context"
 )
@@ -40,7 +41,7 @@ func getClient(stdno, passwd string) (http.Client, string, error) {
 	}
 	result := string(body)
 	alert := strings.Index(result, "alert")
-	if alert == -1 {
+	if alert != -1 {
 		return client, "", errors.New("Username or Password error")
 	}
 	start := strings.Index(result, "top.aspx?id=")
@@ -59,5 +60,31 @@ func (j *Jwch) Login(ctx context.Context, req *jwch.LoginRequest, rsp *jwch.Logi
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (j *Jwch) Getinfo(ctx context.Context, req *jwch.GetInfoRequest, rsp *jwch.GetInfoResponse) error {
+	stdno := req.Stdno
+	passwd := req.Password
+	client, id, err := getClient(stdno, passwd)
+	if err != nil {
+		return err
+	}
+	url := "http://59.77.226.35/jcxx/xsxx/StudentInformation.aspx?id=" + id
+	jreq, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+	jreq.Header.Add("Referer", "http://jwch.fzu.edu.cn/")
+	resp, err := client.Do(jreq)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	rsp.Stdno = doc.Find("#ContentPlaceHolder1_LB_xh").Text()
+	rsp.Realname = doc.Find("#ContentPlaceHolder1_LB_xm").Text()
+	rsp.College = doc.Find("#ContentPlaceHolder1_LB_xymc").Text()
+	rsp.Grade = doc.Find("#ContentPlaceHolder1_LB_nj").Text()
 	return nil
 }

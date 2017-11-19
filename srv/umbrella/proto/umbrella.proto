@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+service Lend {
+  rpc  GetAllUmb (GetAllUmbRequest) returns (GetAllumbResponse) {}
+  rpc BorrowOne (BorrowOneRequest) returns (BorrowOneResponse) {}
+  rpc ReturnOne (ReturnRequest) returns (ReturnResponse) {}
+} 
+
+message Umbrella {
+  string number = 1;
+  bool rented = 2;
+}
+
+message GetAllUmbRequest {
+
+}
+
+message GetAllumbResponse {
+  repeated Umbrella umbrellas = 1;
+}
+
+message BorrowOneRequest {
+  string stdno = 1;
+  string place = 2;
+  string number = 3;
+}
+
+message BorrowOneResponse {}
+
+message ReturnRequest {
+  int32 id = 1;
+}
+
+message ReturnResponse {}

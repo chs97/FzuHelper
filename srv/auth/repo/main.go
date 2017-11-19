@@ -64,3 +64,18 @@ func GetByStdno(stdno string, user *User) error {
 	}
 	return res.Error
 }
+
+func Update(stdno, phone, qq string) error {
+	user := new(User)
+	ret := db.Where("stdno = ?", stdno).First(user)
+	if ret.RecordNotFound() {
+		return errors.New("Record not found")
+	}
+	if ret.Error != nil {
+		return ret.Error
+	}
+	user.Phone = phone
+	user.Qq = qq
+	err := db.Save(user)
+	return err.Error
+}

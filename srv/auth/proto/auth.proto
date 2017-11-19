@@ -3,6 +3,9 @@ syntax = "proto3";
 service Auth {
   rpc Create (CreateRequest) returns (CreateResponse){}
   rpc Read (ReadRequest) returns (ReadResponse) {}
+  rpc Update (UpdateRequest) returns (UpdateResponse) {}
+  rpc JWTSign (JWTSignRequest) returns (JWTSignResponse) {}
+  rpc JWTVerify (JWTVerifyRequest) returns (JWTverifyResponse) {}
 }
 
 message User {
@@ -11,6 +14,8 @@ message User {
   string realname = 3;
   string grade = 4;
   string college = 5;
+  string phone = 6;
+  string qq = 7;
 }
 
 message CreateRequest {
@@ -32,3 +37,28 @@ message ReadRequest {
 message ReadResponse {
   User user = 1;
 }
+
+message JWTSignRequest {
+  string stdno = 1;
+  string password = 2;
+}
+
+message JWTSignResponse {
+  string payload = 1;
+}
+
+message JWTVerifyRequest {
+  string payload = 1;
+}
+
+message JWTverifyResponse {
+  string stdno = 1;
+}
+
+message UpdateRequest {
+  string stdno = 1;
+  string phone = 2;
+  string qq = 3;
+}
+
+message UpdateResponse {}
