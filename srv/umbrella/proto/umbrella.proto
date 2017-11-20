@@ -1,14 +1,26 @@
 syntax = "proto3";
 
 service Lend {
-  rpc  GetAllUmb (GetAllUmbRequest) returns (GetAllumbResponse) {}
+  rpc GetAllUmb (GetAllUmbRequest) returns (GetAllumbResponse) {}
   rpc BorrowOne (BorrowOneRequest) returns (BorrowOneResponse) {}
   rpc ReturnOne (ReturnRequest) returns (ReturnResponse) {}
+  rpc GetRecordsByNum (GetRecordsByNumRequest) returns (GetRecordsByNumResponse) {}
+  rpc GetRecordsByStdno (GetRecordsByStdnoRequest) returns (GetRecordsByStdnoResponse) {}
 } 
 
 message Umbrella {
   string number = 1;
   bool rented = 2;
+}
+
+message Record {
+  int32 id = 1;
+  string stdno = 2;
+  string place = 3;
+  string number = 4;
+  bool hasReturn = 5;
+  int64 createAt = 6;
+  int64 returnAt = 7;
 }
 
 message GetAllUmbRequest {
@@ -32,3 +44,19 @@ message ReturnRequest {
 }
 
 message ReturnResponse {}
+
+message GetRecordsByStdnoRequest {
+  string stdno  = 1;
+}
+
+message GetRecordsByStdnoResponse {
+  repeated Record records = 1;
+}
+
+message GetRecordsByNumRequest {
+  string number = 1; 
+}
+
+message GetRecordsByNumResponse {
+  repeated Record records = 1;
+}

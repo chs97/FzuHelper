@@ -77,10 +77,32 @@ func ReturnUmb(id int32) error {
 	return db.Save(borrow).Error
 }
 
-func GetRecordsByNumber(number string, records *[]Borrow) error {
+func HasRented(number string) bool {
+	borrow := new(Borrow)
+	ret := db.Where("number = ? AND has_return = ?", number, false).First(borrow)
+	if ret.RecordNotFound() {
+		return false
+	}
+	return true
+}
+
+func GetRecordsByNumber(number string, records []Borrow) error {
 	ret := db.Where("number = ? AND has_return = ?", number, false).Find(records)
 	if ret.RecordNotFound() {
 		return errors.New("Record not found")
 	}
 	return nil
+}
+
+func GetRecordsByStdno(stdno string, records []Borrow) error {
+	ret := db.Where("stdno = ? ", stdno).Find(records)
+	if ret.RecordNotFound() {
+		return errors.New("Record not found")
+	}
+	return nil
+}
+
+func GetAllUmb(umbrellas []Umbrella) error {
+	ret := db.Find(umbrellas)
+	return ret.Error
 }
