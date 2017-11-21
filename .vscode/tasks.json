@@ -21,6 +21,24 @@
       "problemMatcher": ["$go"]
     },
     {
+      "taskName": "umbrella server",
+      "type": "shell",
+      "command": "go",
+      "options": {
+        "env": {
+          "POSTGRES_HOST": "localhost",
+          "POSTGRES_PORT": "5432",
+          "POSTGRES_DB": "qx",
+          "POSTGRES_USER": "root",
+          "POSTGRES_PASSWORD": "docker",
+          "SALT": "dkWOt3aGqAR8EGRY",
+          "JWT_SECRET": "QjRjaZoJfhqud9tj"
+        }
+      },
+      "args": ["run", "srv/umbrella/main.go"],
+      "problemMatcher": ["$go"]
+    },
+    {
       "taskName": "jwch server",
       "type": "shell",
       "command": "go",

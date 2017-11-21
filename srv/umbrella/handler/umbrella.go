@@ -6,11 +6,13 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Umbrella Handler
 type Umbrella struct{}
 
+// GetAllUmb Get all umbrellas
 func (u *Umbrella) GetAllUmb(ctx context.Context, req *umb.GetAllUmbRequest, rsp *umb.GetAllumbResponse) error {
 	umbrellas := []repo.Umbrella{}
-	err := repo.GetAllUmb(umbrellas)
+	err := repo.GetAllUmb(&umbrellas)
 	if err != nil {
 		return err
 	}
@@ -34,7 +36,7 @@ func (u *Umbrella) ReturnOne(ctx context.Context, req *umb.ReturnRequest, rsp *u
 }
 func (u *Umbrella) GetRecordsByNum(ctx context.Context, req *umb.GetRecordsByNumRequest, rsp *umb.GetRecordsByNumResponse) error {
 	borrows := []repo.Borrow{}
-	err := repo.GetRecordsByNumber(req.Number, borrows)
+	err := repo.GetRecordsByNumber(req.Number, &borrows)
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,7 @@ func (u *Umbrella) GetRecordsByNum(ctx context.Context, req *umb.GetRecordsByNum
 
 func (u *Umbrella) GetRecordsByStdno(ctx context.Context, req *umb.GetRecordsByStdnoRequest, rsp *umb.GetRecordsByStdnoResponse) error {
 	borrows := []repo.Borrow{}
-	err := repo.GetRecordsByStdno(req.Stdno, borrows)
+	err := repo.GetRecordsByStdno(req.Stdno, &borrows)
 	if err != nil {
 		return err
 	}
@@ -72,4 +74,8 @@ func (u *Umbrella) GetRecordsByStdno(ctx context.Context, req *umb.GetRecordsByS
 	}
 	rsp.Records = records
 	return nil
+}
+
+func (u *Umbrella) AddUmbrella(ctx context.Context, req *umb.AddUmbrellaRequest, rsp *umb.AddUmbrellaResponse) error {
+	return repo.AddUmbrella(req.Number)
 }

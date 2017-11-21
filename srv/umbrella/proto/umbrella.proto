@@ -6,6 +6,7 @@ service Lend {
   rpc ReturnOne (ReturnRequest) returns (ReturnResponse) {}
   rpc GetRecordsByNum (GetRecordsByNumRequest) returns (GetRecordsByNumResponse) {}
   rpc GetRecordsByStdno (GetRecordsByStdnoRequest) returns (GetRecordsByStdnoResponse) {}
+  rpc AddUmbrella (AddUmbrellaRequest) returns (AddUmbrellaResponse) {}
 } 
 
 message Umbrella {
@@ -59,4 +60,12 @@ message GetRecordsByNumRequest {
 
 message GetRecordsByNumResponse {
   repeated Record records = 1;
+}
+
+message AddUmbrellaRequest {
+  string number = 1;
+}
+
+message AddUmbrellaResponse {
+  
 }

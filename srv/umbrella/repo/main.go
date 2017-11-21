@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres" // postgres driven
 )
 
 var (
@@ -50,11 +51,11 @@ func AddUmbrella(number string) error {
 
 func AddBorrowRecord(stdno, place, number string) error {
 	borrow := new(Borrow)
-	ret := db.Where("stdno = ? AND has_return = ?", stdno, true).First(&Borrow{})
+	ret := db.Where("stdno = ? AND has_return = ?", stdno, false).First(&Borrow{})
 	if !ret.RecordNotFound() {
 		return errors.New("Borrow Not Return")
 	}
-	retM := db.Where("number = ? AND has_return = ?", number, true).First(&Borrow{})
+	retM := db.Where("number = ? AND has_return = ?", number, false).First(&Borrow{})
 	if !retM.RecordNotFound() {
 		return errors.New("Umbrella Has Rented")
 	}
@@ -86,7 +87,7 @@ func HasRented(number string) bool {
 	return true
 }
 
-func GetRecordsByNumber(number string, records []Borrow) error {
+func GetRecordsByNumber(number string, records *[]Borrow) error {
 	ret := db.Where("number = ? AND has_return = ?", number, false).Find(records)
 	if ret.RecordNotFound() {
 		return errors.New("Record not found")
@@ -94,7 +95,7 @@ func GetRecordsByNumber(number string, records []Borrow) error {
 	return nil
 }
 
-func GetRecordsByStdno(stdno string, records []Borrow) error {
+func GetRecordsByStdno(stdno string, records *[]Borrow) error {
 	ret := db.Where("stdno = ? ", stdno).Find(records)
 	if ret.RecordNotFound() {
 		return errors.New("Record not found")
@@ -102,7 +103,7 @@ func GetRecordsByStdno(stdno string, records []Borrow) error {
 	return nil
 }
 
-func GetAllUmb(umbrellas []Umbrella) error {
+func GetAllUmb(umbrellas *[]Umbrella) error {
 	ret := db.Find(umbrellas)
 	return ret.Error
 }
