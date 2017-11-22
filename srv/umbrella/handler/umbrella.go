@@ -49,6 +49,7 @@ func (u *Umbrella) GetRecordsByNum(ctx context.Context, req *umb.GetRecordsByNum
 		record.HasReturn = item.HasReturn
 		record.Place = item.Place
 		record.ReturnAt = item.ReturnAt.Unix()
+		record.Number = item.Number
 		records = append(records, record)
 	}
 	rsp.Records = records
@@ -70,6 +71,7 @@ func (u *Umbrella) GetRecordsByStdno(ctx context.Context, req *umb.GetRecordsByS
 		record.HasReturn = item.HasReturn
 		record.Place = item.Place
 		record.ReturnAt = item.ReturnAt.Unix()
+		record.Number = item.Number
 		records = append(records, record)
 	}
 	rsp.Records = records

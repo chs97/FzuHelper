@@ -10,7 +10,7 @@ import (
 
 func main() {
 	service := micro.NewService(
-		micro.Name("FzuHelper.Umbrella"),
+		micro.Name("FzuHelper.lend"),
 		micro.Version("latest"),
 	)
 

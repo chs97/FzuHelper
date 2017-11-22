@@ -9,7 +9,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+// User API
 type User struct{}
+
+// TStdno auth -> stdno
+var TStdno = ""
 
 func (u *User) Login(req *restful.Request, rsp *restful.Response) {
 	type reqType struct {
@@ -79,16 +83,16 @@ func (u *User) Login(req *restful.Request, rsp *restful.Response) {
 }
 
 func (u *User) GetInfo(req *restful.Request, rsp *restful.Response) {
-	payload := req.HeaderParameter("token")
-	JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
-		Payload: payload,
-	})
-	if err != nil {
-		rsp.WriteError(400, err)
-		return
-	}
+	// payload := req.HeaderParameter("token")
+	// JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
+	// 	Payload: payload,
+	// })
+	// if err != nil {
+	// 	rsp.WriteError(400, err)
+	// 	return
+	// }
 	User, err := authClient.Read(context.TODO(), &authProto.ReadRequest{
-		Stdno: JWT.Stdno,
+		Stdno: TStdno,
 	})
 	if err != nil {
 		rsp.WriteError(400, err)
@@ -102,21 +106,21 @@ func (u *User) GetInfo(req *restful.Request, rsp *restful.Response) {
 }
 
 func (u *User) Update(req *restful.Request, rsp *restful.Response) {
-	payload := req.HeaderParameter("token")
-	JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
-		Payload: payload,
-	})
-	if err != nil {
-		rsp.WriteError(400, err)
-		return
-	}
-	stdno := JWT.Stdno
+	// payload := req.HeaderParameter("token")
+	// JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
+	// 	Payload: payload,
+	// })
+	// if err != nil {
+	// 	rsp.WriteError(400, err)
+	// 	return
+	// }
+	stdno := TStdno
 	type reqType struct {
 		Phone string `json:"phone"`
 		Qq    string `json:"qq"`
 	}
 	reqData := new(reqType)
-	err = req.ReadEntity(reqData)
+	err := req.ReadEntity(reqData)
 	if err != nil {
 		rsp.WriteError(400, err)
 		return
@@ -138,13 +142,14 @@ func AuthFilter(req *restful.Request, rsp *restful.Response, chain *restful.Filt
 		rsp.WriteError(401, errors.New("Token invalid"))
 		return
 	}
-	_, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
+	stdno, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
 		Payload: payload,
 	})
 	if err != nil {
 		rsp.WriteError(401, err)
 		return
 	}
+	TStdno = stdno.Stdno
 	chain.ProcessFilter(req, rsp)
 }
 
@@ -155,7 +160,7 @@ func init() {
 	UserService = new(restful.WebService)
 	UserService.Consumes(restful.MIME_JSON, restful.MIME_JSON)
 	UserService.Produces(restful.MIME_JSON, restful.MIME_JSON)
-	UserService.Path("/user")
+	UserService.Path("/api/user")
 	UserService.Route(UserService.POST("/login").To(user.Login))
 	UserService.Route(UserService.GET("/").Filter(AuthFilter).To(user.GetInfo))
 	UserService.Route(UserService.PUT("/").Filter(AuthFilter).To(user.Update))

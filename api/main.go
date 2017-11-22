@@ -10,13 +10,14 @@ import (
 
 func main() {
 	service := web.NewService(
-		web.Name("go.micro.api.user"),
+		web.Name("go.micro.api.api"),
 	)
 
 	service.Init()
 
 	webContain := restful.NewContainer()
 	webContain.Add(api.UserService)
+	webContain.Add(api.UmbService)
 	service.Handle("/", webContain)
 
 	if err := service.Run(); err != nil {
