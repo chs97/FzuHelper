@@ -62,5 +62,6 @@ func init() {
 	UmbService.Consumes(restful.MIME_JSON, restful.MIME_JSON)
 	UmbService.Produces(restful.MIME_JSON, restful.MIME_JSON)
 	UmbService.Path("/api/umbrella")
+	UmbService.Route(UmbService.POST("/borrow").Filter(AuthFilter).To(lend.BorrowOne))
 	UmbService.Route(UmbService.GET("/").Filter(AuthFilter).To(lend.GetAllMyBorrow))
 }

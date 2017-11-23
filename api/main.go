@@ -16,6 +16,16 @@ func main() {
 	service.Init()
 
 	webContain := restful.NewContainer()
+	// cors := restful.CrossOriginResourceSharing{
+	// 	ExposeHeaders:  []string{"X-My-Header"},
+	// 	AllowedHeaders: []string{"Content-Type", "Accept"},
+	// 	AllowedMethods: []string{"GET", "POST", "PUT"},
+	// 	CookiesAllowed: false,
+	// 	Container:      webContain}
+	// webContain.Filter(cors.Filter)
+
+	// // Add container filter to respond to OPTIONS
+	// webContain.Filter(webContain.OPTIONSFilter)
 	webContain.Add(api.UserService)
 	webContain.Add(api.UmbService)
 	service.Handle("/", webContain)

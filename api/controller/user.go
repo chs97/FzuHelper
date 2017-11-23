@@ -137,7 +137,7 @@ func (u *User) Update(req *restful.Request, rsp *restful.Response) {
 }
 
 func AuthFilter(req *restful.Request, rsp *restful.Response, chain *restful.FilterChain) {
-	payload := req.HeaderParameter("token")
+	payload := req.HeaderParameter("Authorization")
 	if len(payload) == 0 {
 		rsp.WriteError(401, errors.New("Token invalid"))
 		return
