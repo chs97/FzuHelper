@@ -4,7 +4,7 @@ RUN apk add --no-cache tzdata && \
     apk del tzdata
 RUN apk update && \
     apk add --no-cache git
-COPY package.json /tmp/package.json
 WORKDIR /go/src/app
-COPY . /opt/workdir
+COPY /srv/auth /go/src/app
+RUN go get
 RUN go build main.go
