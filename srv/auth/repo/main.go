@@ -22,10 +22,9 @@ func init() {
 	database := os.Getenv("POSTGRES_DB")
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
-	port := os.Getenv("POSTGRES_PORT")
 	Salt = os.Getenv("SALT")
 
-	config := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", host, port, user, database, password)
+	config := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", host, port, user, database, password)
 
 	if host == "" || database == "" {
 		log.Fatal("should provide POSTGRES_HOST and POSTGRES_DB")
