@@ -30,7 +30,7 @@ func init() {
 	if host == "" || database == "" {
 		log.Fatal("should provide POSTGRES_HOST and POSTGRES_DB")
 	}
-
+	fmt.Println(config)
 	var err error
 
 	if Salt == "" {
