@@ -12,7 +12,7 @@
           "POSTGRES_PORT": "5432",
           "POSTGRES_DB": "qx",
           "POSTGRES_USER": "root",
-          "POSTGRES_PASSWORD": "docker",
+          "POSTGRES_PASSWORD": "123456",
           "SALT": "dkWOt3aGqAR8EGRY",
           "JWT_SECRET": "QjRjaZoJfhqud9tj"
         }
@@ -30,7 +30,7 @@
           "POSTGRES_PORT": "5432",
           "POSTGRES_DB": "qx",
           "POSTGRES_USER": "root",
-          "POSTGRES_PASSWORD": "docker",
+          "POSTGRES_PASSWORD": "123456",
           "SALT": "dkWOt3aGqAR8EGRY",
           "JWT_SECRET": "QjRjaZoJfhqud9tj"
         }
