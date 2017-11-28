@@ -33,7 +33,7 @@ func captcha(base64 string) string {
 	data := ocr{Base64: base64, Trim: "\n", whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"}
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(data)
-	res, err := http.Post("http://localhost:8088/base64", "application/json; charset=utf-8", buf)
+	res, err := http.Post("http://soft.hs97.cn:8088/base64", "application/json; charset=utf-8", buf)
 	if err != nil {
 		return ""
 	}
