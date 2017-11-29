@@ -6,6 +6,7 @@ service Auth {
   rpc Update (UpdateRequest) returns (UpdateResponse) {}
   rpc JWTSign (JWTSignRequest) returns (JWTSignResponse) {}
   rpc JWTVerify (JWTVerifyRequest) returns (JWTverifyResponse) {}
+  rpc ChangePwd (ChangePwdRequest) returns (ChangePwdResponse) {}
 }
 
 message User {
@@ -28,6 +29,7 @@ message CreateRequest {
 
 message CreateResponse {
   int32 id = 1;
+  string token = 2;
 }
 
 message ReadRequest {
@@ -59,6 +61,14 @@ message UpdateRequest {
   string stdno = 1;
   string phone = 2;
   string qq = 3;
+}
+
+message ChangePwdRequest{
+  string stdno = 1;
+  string password = 2;
+}
+message ChangePwdResponse {
+  string payload = 1;
 }
 
 message UpdateResponse {}

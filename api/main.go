@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+
+	"github.com/chs97/FzuHelper/api/controller"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
 )
@@ -12,5 +15,10 @@ func main() {
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PATCH", "PUT"},
 		AllowCredentials: true,
 	}))
-	app.Run(iris.Addr(":8080"))
+	app.PartyFunc("/user", api.UserController)
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	app.Run(iris.Addr(":" + port))
 }

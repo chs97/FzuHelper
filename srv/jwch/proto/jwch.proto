@@ -22,3 +22,11 @@ service Jwch {
    string grade = 3;
    string college = 4;
  }
+
+ message jwtUserLoginRequest {
+   string stdno = 1;
+   string password = 1;
+ }
+ message jwtUserLoginResponse {
+   
+ }

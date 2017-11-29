@@ -1,11 +1,14 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/httptest"
 
 	authProto "github.com/chs97/FzuHelper/srv/auth/proto"
+	jwchProto "github.com/chs97/FzuHelper/srv/jwch/proto"
 	"golang.org/x/net/context"
-	
 )
 
 // User API
@@ -14,82 +17,91 @@ type User struct{}
 // TStdno auth -> stdno
 // var TStdno = ""
 
-// func (u *User) Login(req *restful.Request, rsp *restful.Response) {
-// 	type reqType struct {
-// 		Stdno  string `json:"stdno"`
-// 		Passwd string `json:"password"`
-// 	}
-// 	var (
-// 		jwchRsp *jwchProto.GetInfoResponse
-// 		jwtRsp  *authProto.JWTSignResponse
-// 		err     error
-// 	)
-// 	res := make(map[string]interface{})
-// 	res["state"] = "0"
-// 	reqData := new(reqType)
-// 	err = req.ReadEntity(reqData)
-// 	if err != nil {
-// 		rsp.WriteError(500, err)
-// 		return
-// 	}
-// 	if len(reqData.Stdno) != 9 {
-// 		rsp.WriteError(400, errors.New("学号的长度必须为9位"))
-// 		return
-// 	}
-// 	if len(reqData.Passwd) == 0 {
-// 		rsp.WriteError(400, errors.New("密码不得为空"))
-// 		return
-// 	}
-// 	_, err = authClient.Read(context.TODO(), &authProto.ReadRequest{
-// 		Stdno: reqData.Stdno,
-// 	})
-// 	if err != nil && err.Error() == "Record not found" {
-// 		jwchRsp, err = jwchClient.Getinfo(context.TODO(), &jwchProto.GetInfoRequest{
-// 			Stdno:    reqData.Stdno,
-// 			Password: reqData.Passwd,
-// 		})
-// 		if err != nil {
-// 			rsp.WriteError(403, err)
-// 			return
-// 		}
-// 		createReq := new(authProto.CreateRequest)
-// 		createReq.College = jwchRsp.College
-// 		createReq.Grade = jwchRsp.Grade
-// 		createReq.Realname = jwchRsp.Realname
-// 		createReq.Password = reqData.Passwd
-// 		createReq.Stdno = jwchRsp.Stdno
-// 		_, err := authClient.Create(context.TODO(), createReq)
-// 		if err != nil {
-// 			rsp.WriteError(500, err)
-// 			return
-// 		}
-// 	} else if err != nil {
-// 		rsp.WriteError(500, err)
-// 		return
-// 	}
-// 	jwtRsp, err = authClient.JWTSign(context.TODO(), &authProto.JWTSignRequest{
-// 		Stdno:    reqData.Stdno,
-// 		Password: reqData.Passwd,
-// 	})
-// 	if err != nil {
-// 		rsp.WriteError(403, err)
-// 		return
-// 	}
-// 	// res["id"] = authRsp.User.Id
-// 	res["state"] = "1"
-// 	res["data"] = jwtRsp.Payload
-// 	rsp.WriteEntity(res)
-// }
+func userLogin(ctx iris.Context) {
+	type reqType struct {
+		Stdno    string
+		Password string
+	}
+	res := make(map[string]interface{})
+	reqData := new(reqType)
+	ctx.ReadJSON(reqData)
+	if len(reqData.Stdno) != 9 {
+		ctx.StatusCode(httptest.StatusBadRequest)
+		ctx.Text("学号的长度必须为9位")
+		return
+	}
+	if len(reqData.Password) == 0 {
+		ctx.StatusCode(httptest.StatusBadRequest)
+		ctx.Text("密码不得为空")
+		return
+	}
+	jwtSignRes, err := authClient.JWTSign(context.TODO(), &authProto.JWTSignRequest{
+		Stdno:    reqData.Stdno,
+		Password: reqData.Password,
+	})
+	// login failure password error
+	if err != nil && err.Error() == "Password error" {
+		_, err := jwchClient.Getinfo(context.TODO(), &jwchProto.GetInfoRequest{
+			Stdno:    reqData.Stdno,
+			Password: reqData.Password,
+		})
+		if err != nil {
+			fmt.Println(err.Error())
+			ctx.StatusCode(httptest.StatusBadRequest)
+			ctx.Text("账号或密码错误")
+			return
+		}
+		changePwd, err := authClient.ChangePwd(context.TODO(), &authProto.ChangePwdRequest{
+			Stdno:    reqData.Stdno,
+			Password: reqData.Password,
+		})
+		if err != nil {
+			ctx.StatusCode(httptest.StatusInternalServerError)
+			ctx.Text(err.Error())
+			return
+		}
+		res["data"] = changePwd.Payload
+		ctx.JSON(res)
+		return
+	}
+	if err == nil {
+		res["data"] = jwtSignRes.Payload
+		ctx.JSON(res)
+		return
+	}
+
+	if err != nil && err.Error() != "Record not found" {
+		ctx.StatusCode(httptest.StatusInternalServerError)
+		return
+	}
+	// record not found then create user
+	jwchReq, err := jwchClient.Getinfo(context.TODO(), &jwchProto.GetInfoRequest{
+		Stdno:    reqData.Stdno,
+		Password: reqData.Password,
+	})
+	if err != nil {
+		ctx.StatusCode(httptest.StatusInternalServerError)
+		ctx.Text(err.Error())
+		return
+	}
+	createRes, err := authClient.Create(context.TODO(), &authProto.CreateRequest{
+		Stdno:    reqData.Stdno,
+		Password: reqData.Password,
+		Grade:    jwchReq.Grade,
+		College:  jwchReq.College,
+		Realname: jwchReq.Realname,
+	})
+	if err != nil {
+		ctx.StatusCode(httptest.StatusInternalServerError)
+		ctx.Text(err.Error())
+		return
+	}
+	res["data"] = createRes.Token
+	ctx.JSON(res)
+	return
+}
 
 func getUserInfo(ctx iris.Context) {
-	// payload := req.HeaderParameter("token")
-	// JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
-	// 	Payload: payload,
-	// })
-	// if err != nil {
-	// 	rsp.WriteError(400, err)
-	// 	return
-	// }
 	stdno := ctx.Values().GetString("stdno")
 	User, err := authClient.Read(context.TODO(), &authProto.ReadRequest{
 		Stdno: stdno,
@@ -106,54 +118,8 @@ func getUserInfo(ctx iris.Context) {
 	ctx.JSON(res)
 }
 
-// func (u *User) Update(req *restful.Request, rsp *restful.Response) {
-// 	// payload := req.HeaderParameter("token")
-// 	// JWT, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
-// 	// 	Payload: payload,
-// 	// })
-// 	// if err != nil {
-// 	// 	rsp.WriteError(400, err)
-// 	// 	return
-// 	// }
-// 	stdno := TStdno
-// 	type reqType struct {
-// 		Phone string `json:"phone"`
-// 		Qq    string `json:"qq"`
-// 	}
-// 	reqData := new(reqType)
-// 	err := req.ReadEntity(reqData)
-// 	if err != nil {
-// 		rsp.WriteError(400, err)
-// 		return
-// 	}
-// 	_, err = authClient.Update(context.TODO(), &authProto.UpdateRequest{
-// 		Stdno: stdno,
-// 		Phone: reqData.Phone,
-// 		Qq:    reqData.Qq,
-// 	})
-// 	if err != nil {
-// 		rsp.WriteError(400, err)
-// 		return
-// 	}
-// }
-
-// func AuthFilter(req *restful.Request, rsp *restful.Response, chain *restful.FilterChain) {
-// 	payload := req.HeaderParameter("Authorization")
-// 	if len(payload) == 0 {
-// 		rsp.WriteError(401, errors.New("Token invalid"))
-// 		return
-// 	}
-// 	stdno, err := authClient.JWTVerify(context.TODO(), &authProto.JWTVerifyRequest{
-// 		Payload: payload,
-// 	})
-// 	if err != nil {
-// 		rsp.WriteError(401, err)
-// 		return
-// 	}
-// 	TStdno = stdno.Stdno
-// 	chain.ProcessFilter(req, rsp)
-// }
-
+// UserController user api
 func UserController(user iris.Party) {
 	user.Get("/", Authentication, getUserInfo)
+	user.Post("/", userLogin)
 }

@@ -21,6 +21,20 @@ func init() {
 	secret = []byte(os.Getenv("JWT_SECRET"))
 }
 
+func genJWT(stdno string) string {
+	claims := &jwt.StandardClaims{
+		ExpiresAt: time.Now().Unix() + expire,
+		Subject:   stdno,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(secret)
+	if err != nil {
+		return ""
+	}
+	return ss
+}
+
 // Auth Handler
 type Auth struct{}
 
@@ -36,6 +50,7 @@ func (a *Auth) Create(ctx context.Context, req *auth.CreateRequest, rsp *auth.Cr
 	if err != nil {
 		return err
 	}
+	rsp.Token = genJWT(user.Stdno)
 	rsp.Id = user.ID
 	return nil
 }
@@ -73,17 +88,7 @@ func (a *Auth) JWTSign(ctx context.Context, req *auth.JWTSignRequest, rsp *auth.
 		return errors.New("Password error")
 	}
 
-	claims := &jwt.StandardClaims{
-		ExpiresAt: time.Now().Unix() + expire,
-		Subject:   user.Stdno,
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(secret)
-	if err != nil {
-		return err
-	}
-	rsp.Payload = ss
+	rsp.Payload = genJWT(user.Stdno)
 	return nil
 }
 
@@ -105,5 +110,14 @@ func (a *Auth) JWTVerify(ctx context.Context, req *auth.JWTVerifyRequest, rsp *a
 		return err
 	}
 	rsp.Stdno = claims.Subject
+	return nil
+}
+
+func (a *Auth) ChangePwd(ctx context.Context, req *auth.ChangePwdRequest, res *auth.ChangePwdResponse) error {
+	err := repo.ChangePwd(req.Stdno, req.Password)
+	if err != nil {
+		return err
+	}
+	res.Payload = genJWT(req.Stdno)
 	return nil
 }

@@ -3,7 +3,7 @@
   // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [{
-      "taskName": "auth server",
+      "label": "auth server",
       "type": "shell",
       "command": "go",
       "options": {
@@ -21,7 +21,7 @@
       "problemMatcher": ["$go"]
     },
     {
-      "taskName": "umbrella server",
+      "label": "umbrella server",
       "type": "shell",
       "command": "go",
       "options": {
@@ -39,14 +39,14 @@
       "problemMatcher": ["$go"]
     },
     {
-      "taskName": "jwch server",
+      "label": "jwch server",
       "type": "shell",
       "command": "go",
       "args": ["run", "srv/jwch/main.go"],
       "problemMatcher": ["$go"]
     },
     {
-      "taskName": "api",
+      "label": "api",
       "type": "shell",
       "command": "go",
       "args": ["run", "api/main.go"],
