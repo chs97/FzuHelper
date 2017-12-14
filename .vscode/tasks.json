@@ -42,6 +42,11 @@
       "label": "jwch server",
       "type": "shell",
       "command": "go",
+      "options": {
+        "env": {
+          "JWT_SECRET": "QjRjaZoJfhqud9tj"
+        }
+      },
       "args": ["run", "srv/jwch/main.go"],
       "problemMatcher": ["$go"]
     },

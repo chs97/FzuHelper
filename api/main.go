@@ -10,15 +10,16 @@ import (
 
 func main() {
 	app := iris.New()
+	app.PartyFunc("/user", api.UserController)
 	app.WrapRouter(cors.WrapNext(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PATCH", "PUT"},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	}))
-	app.PartyFunc("/user", api.UserController)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
 	}
-	app.Run(iris.Addr(":" + port))
+	app.Run(iris.Addr(":"+port), iris.WithoutVersionChecker)
 }

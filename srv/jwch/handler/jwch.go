@@ -9,10 +9,14 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chs97/FzuHelper/srv/jwch/proto"
+	"github.com/chs97/FzuHelper/srv/jwch/utils"
+	jwt "github.com/dgrijalva/jwt-go"
 	"golang.org/x/net/context"
 )
 
@@ -22,6 +26,12 @@ type ocr struct {
 	Base64    string `json:"base64"`
 	Trim      string `json:"trim"`
 	whitelist string `json:"whitelist"`
+}
+
+var secret []byte
+
+func init() {
+	secret = []byte(os.Getenv("JWT_SECRET"))
 }
 
 type ocrResult struct {
@@ -140,5 +150,48 @@ func (j *Jwch) Getinfo(ctx context.Context, req *jwch.GetInfoRequest, rsp *jwch.
 	rsp.Realname = doc.Find("#ContentPlaceHolder1_LB_xm").Text()
 	rsp.College = doc.Find("#ContentPlaceHolder1_LB_xymc").Text()
 	rsp.Grade = doc.Find("#ContentPlaceHolder1_LB_nj").Text()
+	return nil
+}
+
+func (j *Jwch) JwtUserLogin(ctx context.Context, req *jwch.JwtUserLoginRequest, rsp *jwch.JwtUserLoginResponse) error {
+	var client http.Client
+	now := time.Now()
+	date := utils.FormatDate(now)
+	reqData := url.Values{"methodType": {"stulogin"}, "xh": {req.Stdno}, "pwd": {req.Password}, "date": {date}, "machine": {"iPhone 6 (A1549/A1586)"}}
+	login, err := http.NewRequest("POST", "http://59.77.134.232/fzuapp/UserHandler.ashx", strings.NewReader(reqData.Encode()))
+	if err != nil {
+		return err
+	}
+	login.Form = reqData
+	login.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := client.Do(login)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	type loginRes struct {
+		Status  int    `json:"status"`
+		Message string `json:"message"`
+	}
+	loginResData := new(loginRes)
+	json.NewDecoder(resp.Body).Decode(loginResData)
+	if loginResData.Status != 0 {
+		return errors.New(loginResData.Message)
+	}
+	token, err := utils.GenerateToken(req.Stdno, date)
+	if err != nil {
+		return err
+	}
+	claims := &jwt.StandardClaims{
+		IssuedAt:  now.Unix(),
+		Subject:   token,
+		ExpiresAt: now.Unix() + 30*24*60*60,
+	}
+	ss := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	payload, err := ss.SignedString(secret)
+	if err != nil {
+		return err
+	}
+	rsp.Payload = payload
 	return nil
 }

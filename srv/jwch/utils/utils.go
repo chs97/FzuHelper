@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // PKCS5Padding DesCBCpadding
@@ -74,10 +75,8 @@ func GenerateToken(stdno, date string) (string, error) {
 
 }
 
-// FixedLeadingZero fixed leading zero "1", 2 -> "01"
-func FixedLeadingZero(src string, length int) string {
-	for i := len(src); i < length; i++ {
-		src = "0" + src
-	}
-	return src
+// FormatDate format date
+func FormatDate(timestamp time.Time) string {
+	res := fmt.Sprintf("%04d%02d%02d%02d%02d%02d", timestamp.Year(), timestamp.Month(), timestamp.Day(), timestamp.Hour(), timestamp.Minute(), timestamp.Second())
+	return res
 }

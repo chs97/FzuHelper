@@ -3,6 +3,7 @@ syntax = "proto3";
 service Jwch {
   rpc Login (LoginRequest) returns (LoginResponse) {}
   rpc Getinfo (GetInfoRequest) returns (GetInfoResponse) {}
+  rpc JwtUserLogin (JwtUserLoginRequest) returns (JwtUserLoginResponse) {}
 }
 
  message LoginRequest {
@@ -23,10 +24,10 @@ service Jwch {
    string college = 4;
  }
 
- message jwtUserLoginRequest {
+ message JwtUserLoginRequest {
    string stdno = 1;
-   string password = 1;
+   string password = 2;
  }
- message jwtUserLoginResponse {
-   
+ message JwtUserLoginResponse {
+   string payload = 1;
  }
